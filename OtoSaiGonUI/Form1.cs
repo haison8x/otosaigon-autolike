@@ -17,9 +17,11 @@ namespace OtoSaiGonUI
     {
         private const int MaxPageOfAThread = 1;
         private WebClientEx webClient = new WebClientEx();
-
+        private Random random = new Random();
         private int likeId;
+        private bool randomLikeType = false;
         private string boxUrl;
+        private string profileUrl;
         public Form1()
         {
             InitializeComponent();
@@ -30,7 +32,37 @@ namespace OtoSaiGonUI
             LikeTypeComboBox.SelectedItem = null;
             LikeTypeComboBox.SelectedText = "Love";
             boxUrl = BoxUrlTextBox.Text;
+            profileUrl = ProfileUrlTextBox.Text;
             likeId = 2;
+        }
+
+        private void BoxUrlTextBox_TextChanged(object sender, EventArgs e)
+        {
+            boxUrl = BoxUrlTextBox.Text;
+        }
+
+        private void ProfileUrlTextBox_TextChanged(object sender, EventArgs e)
+        {
+            profileUrl = ProfileUrlTextBox.Text;
+        }
+
+        private void LikeTypeComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            likeId = LikeTypeComboBox.SelectedIndex + 1;
+            randomLikeType = likeId >= LikeTypeComboBox.Items.Count;
+        }
+
+        private int LikeId
+        {
+            get
+            {
+                if (!randomLikeType)
+                {
+                    return likeId;
+                }
+
+                return random.Next(1, likeId - 1);
+            }
         }
 
         private void LoginButton_Click(object sender, EventArgs e)
@@ -41,6 +73,7 @@ namespace OtoSaiGonUI
             webClient.UploadString("https://www.otosaigon.com/login/login", data);
             LoginButton.Enabled = false;
             LikeButton.Enabled = true;
+            LikeUserButton.Enabled = true;
         }
 
         private void LikeButton_Click(object sender, EventArgs e)
@@ -129,7 +162,7 @@ namespace OtoSaiGonUI
 
         private async Task Like(string likeLink, string threadUrl, string token)
         {
-            var likeUrl = likeLink.Substring(0, likeLink.LastIndexOf("=")) + "=" + likeId;
+            var likeUrl = likeLink.Substring(0, likeLink.LastIndexOf("=")) + "=" + LikeId;
 
             threadUrl = threadUrl.Replace("https://www.otosaigon.com", "");
             var encodedThreadUrl = HttpUtility.UrlEncode(threadUrl);
@@ -151,14 +184,76 @@ namespace OtoSaiGonUI
             return document.QuerySelectorAll(selector);
         }
 
-        private void BoxUrlTextBox_TextChanged(object sender, EventArgs e)
+        private void LikeUserButton_Click(object sender, EventArgs e)
         {
-            boxUrl = BoxUrlTextBox.Text;
+
+            LikeUserButton.Enabled = false;
+
+            Task.Run(async () =>
+            {
+                await LikeUserThreads();
+                this.Invoke((MethodInvoker)delegate
+                {
+                    LikeUserButton.Enabled = true;
+                });
+            });
         }
 
-        private void LikeTypeComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        private async Task LikeUserThreads()
         {
-            likeId = LikeTypeComboBox.SelectedIndex + 1;
+            try
+            {
+                var userId = new string(profileUrl.Where(c => char.IsNumber(c)).ToArray());
+                var threads = await GetRecentThreads(userId);
+                foreach (var thread in threads)
+                {
+                    var tuple = await GetUserPost(thread, userId);
+                    foreach (var likeLink in tuple.Item1)
+                    {
+                        await Like(likeLink, thread, tuple.Item2);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+            }
+        }
+
+        private async Task<List<string>> GetRecentThreads(string userId)
+        {
+            webClient.AddHeaders();
+            var linkNodes = await QueryAll($"https://www.otosaigon.com/search/member?user_id={userId}", ".contentRow-title a");
+
+            return linkNodes.Select(n => $"https://www.otosaigon.com{n.GetAttributeValue("href", "")}").ToList();
+        }
+
+        private async Task<Tuple<List<string>, string>> GetUserPost(string thread, string userId)
+        {
+            webClient.AddHeaders();
+            var text = await webClient.DownloadStringTaskAsync(thread);
+            var html = new HtmlAgilityPack.HtmlDocument();
+            html.LoadHtml(text);
+            var document = html.DocumentNode;
+
+            var userLinks = document.QuerySelectorAll(".message-cell--user")
+                .Where(n => n.InnerHtml.Contains(userId))
+                .ToArray();
+
+            var likeLinks = new List<string>();
+            foreach(var userLink in userLinks)
+            {
+                var parent = userLink.ParentNode;
+                var links = parent.QuerySelectorAll(".actionBar-action--reaction")
+                .Where(b => !b.GetAttributeValue("class", "").Contains("has-reaction"))
+                .Select(b => b.GetAttributeValue("href", ""))
+                .Select(s => $"https://www.otosaigon.com{s}")
+                .ToList();
+                likeLinks.AddRange(links);
+            }
+            
+            var token = GetToken(text);
+
+            return new Tuple<List<string>, string>(likeLinks,  token);
         }
     }
 }

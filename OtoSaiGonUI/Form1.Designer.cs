@@ -38,6 +38,9 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.ProfileUrlTextBox = new System.Windows.Forms.TextBox();
+            this.LikeUserButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // LoginButton
@@ -62,7 +65,7 @@
             this.BoxUrlTextBox.Location = new System.Drawing.Point(75, 103);
             this.BoxUrlTextBox.Name = "BoxUrlTextBox";
             this.BoxUrlTextBox.Size = new System.Drawing.Size(268, 20);
-            this.BoxUrlTextBox.TabIndex = 2;
+            this.BoxUrlTextBox.TabIndex = 3;
             this.BoxUrlTextBox.Text = "https://www.otosaigon.com/forums/chuyen-ngoai-le.63/";
             this.BoxUrlTextBox.TextChanged += new System.EventHandler(this.BoxUrlTextBox_TextChanged);
             // 
@@ -71,7 +74,7 @@
             this.PasswordTextBox.Location = new System.Drawing.Point(75, 48);
             this.PasswordTextBox.Name = "PasswordTextBox";
             this.PasswordTextBox.Size = new System.Drawing.Size(268, 20);
-            this.PasswordTextBox.TabIndex = 3;
+            this.PasswordTextBox.TabIndex = 2;
             // 
             // LikeButton
             // 
@@ -93,11 +96,12 @@
             "Haha",
             "Wow",
             "Sad",
-            "Angry"});
+            "Angry",
+            "Random"});
             this.LikeTypeComboBox.Location = new System.Drawing.Point(75, 129);
             this.LikeTypeComboBox.Name = "LikeTypeComboBox";
             this.LikeTypeComboBox.Size = new System.Drawing.Size(268, 21);
-            this.LikeTypeComboBox.TabIndex = 5;
+            this.LikeTypeComboBox.TabIndex = 4;
             this.LikeTypeComboBox.SelectedIndexChanged += new System.EventHandler(this.LikeTypeComboBox_SelectedIndexChanged);
             // 
             // label4
@@ -136,11 +140,43 @@
             this.label3.TabIndex = 9;
             this.label3.Text = "Like Type";
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(15, 197);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(52, 13);
+            this.label5.TabIndex = 11;
+            this.label5.Text = "Profile Url";
+            // 
+            // ProfileUrlTextBox
+            // 
+            this.ProfileUrlTextBox.Location = new System.Drawing.Point(75, 197);
+            this.ProfileUrlTextBox.Name = "ProfileUrlTextBox";
+            this.ProfileUrlTextBox.Size = new System.Drawing.Size(268, 20);
+            this.ProfileUrlTextBox.TabIndex = 5;
+            this.ProfileUrlTextBox.Text = "https://www.otosaigon.com/members/viet-xuan.83881/";
+            this.ProfileUrlTextBox.TextChanged += new System.EventHandler(this.ProfileUrlTextBox_TextChanged);
+            // 
+            // LikeUserButton
+            // 
+            this.LikeUserButton.Enabled = false;
+            this.LikeUserButton.Location = new System.Drawing.Point(12, 224);
+            this.LikeUserButton.Name = "LikeUserButton";
+            this.LikeUserButton.Size = new System.Drawing.Size(331, 23);
+            this.LikeUserButton.TabIndex = 12;
+            this.LikeUserButton.Text = "Truy sát";
+            this.LikeUserButton.UseVisualStyleBackColor = true;
+            this.LikeUserButton.Click += new System.EventHandler(this.LikeUserButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(349, 192);
+            this.ClientSize = new System.Drawing.Size(349, 259);
+            this.Controls.Add(this.LikeUserButton);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.ProfileUrlTextBox);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -171,6 +207,9 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox ProfileUrlTextBox;
+        private System.Windows.Forms.Button LikeUserButton;
     }
 }
 
